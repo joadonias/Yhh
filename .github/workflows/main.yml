@@ -1,4 +1,4 @@
-Name: Windows Cloud PC - Anydesk (Optimized)
+name: Windows Cloud PC - AnyDesk Optimized
 
 on:
   workflow_dispatch:
@@ -7,49 +7,35 @@ jobs:
   build:
     name: Start Building...
     runs-on: windows-latest
-    timeout-minutes: 10080  # Máximo de 7 dias
+    timeout-minutes: 9999
 
     steps:
       - name: Downloading & Installing Essentials
         run: |
-          # Baixa o arquivo .bat para instalar componentes essenciais
+          # Baixa o seu instalador do Dropbox
           Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/7eiczvgil84czu55dxep3/Downloads.bat?rlkey=wzdc1wxjsph2b7r0atplmdz3p&dl=1" -OutFile "Downloads.bat"
-          # Executa o script .bat para instalar os componentes
           cmd /c Downloads.bat
+
+      - name: Abrir Google Roblox Studio
+        run: |
+          # Abre o navegador na pesquisa solicitada
+          Start-Process "https://www.google.com/search?q=roblox+studio"
 
       - name: Log In To AnyDesk
         run: |
-          # Inicia o AnyDesk
+          # Verifica e inicia o AnyDesk
           if (Test-Path "start.bat") {
             cmd /c start.bat
           } else {
-            Write-Host "Arquivo start.bat não encontrado."
+            Write-Host "Arquivo start.bat nao encontrado. Criando um basico..."
+            # Se o start.bat nao existir, ele tenta rodar o AnyDesk diretamente
+            Start-Process "AnyDesk.exe"
           }
 
-      - name: Abrir Google com Pesquisa Roblox Studio
+      - name: Monitor and Keep Alive
         run: |
-          # Abre o navegador padrão na pesquisa do Google por Roblox Studio
-          Start-Process "https://www.google.com/search?q=roblox+studio"
-
-      - name: Monitor and Restart AnyDesk if Needed
-        run: |
-          # Monitora a conexão do AnyDesk
+          # Mantem a maquina ligada por muito tempo
           while ($true) {
-            $process = Get-Process -Name "AnyDesk" -ErrorAction SilentlyContinue
-            if (-not $process) {
-              Write-Host "AnyDesk não está rodando, reiniciando..."
-              if (Test-Path "start.bat") { cmd /c start.bat }
-            }
-            Start-Sleep -Seconds 300  # Verifica a cada 5 minutos
+            Write-Host "PC Ativo... Verifique seu AnyDesk."
+            Start-Sleep -Seconds 600
           }
-
-      - name: Time Counter (Long Running Task)
-        run: |
-          # Mantém a máquina ligada
-          Start-Sleep -Seconds 604800 
-
-      - name: Clean Up Temporary Files
-        if: success()
-        run: |
-          Remove-Item Downloads.bat -Force
-          Write-Host "Limpeza completa."
